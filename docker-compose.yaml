@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  php:
+    build:
+      context: '.'
+      dockerfile: ./docker/php/.Dockerfile
+    volumes:
+      - ./:/app
+    networks:
+      - app-tier
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - mysql
+  nginx:
+    image: 'nginx'
+    depends_on:
+      - php
+      - mysql
+    ports:
+      - '8000:8000'
+      - '44300:44300'
+    volumes:
+      - ./:/app
+      - ./docker/nginx/nginx.conf:/etc/nginx/sites-available/practice/practice.ru.test.conf
+      - ./docker/nginx/nginx.conf:/etc/nginx/sites-enabled/practice/practice.ru.test.conf
+      - ./storage/logs/nginx:/var/log/nginx
+    networks:
+      - app-tier
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 'root'
+      MYSQL_DATABASE: 'dev_practice'
+      MYSQL_USER: 'admin'
+      MYSQL_PASSWORD: 'admin'
+    volumes:
+      - ./docker/mysql:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - app-tier
+networks:
+  app-tier:
+    driver: bridge
