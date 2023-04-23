@@ -14,17 +14,16 @@ services:
     depends_on:
       - mysql
   nginx:
-    image: 'nginx'
-    depends_on:
-      - php
-      - mysql
+    image: 'bitnami/nginx:latest'
     ports:
       - '8000:8000'
       - '44300:44300'
+    depends_on:
+      - php
+      - mysql
     volumes:
       - ./:/app
-      - ./docker/nginx/nginx.conf:/etc/nginx/sites-available/practice/practice.ru.test.conf
-      - ./docker/nginx/nginx.conf:/etc/nginx/sites-enabled/practice/practice.ru.test.conf
+      - ./docker/nginx/practice.conf:/opt/bitnami/nginx/conf/server_blocks/localhost.conf
       - ./storage/logs/nginx:/var/log/nginx
     networks:
       - app-tier
